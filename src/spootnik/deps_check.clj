@@ -16,12 +16,12 @@
   (println "compiling namespace" ns)
   (try
     (binding [*warn-on-reflection* true]
-      (load (file-for ns))
-      true)
+      (load (file-for ns)))
+    nil
     (catch Exception e
       (binding [*out* *err*]
         (println "failed to load namespace" ns ":" (ex-message (ex-cause e)))
-        false))))
+        ns))))
 
 (defn- find-namespaces
   [dirs]
@@ -29,17 +29,13 @@
    :classpath (map io/file dirs)
    :ignore-unreadable? false))
 
-(defn- find-dirs
-  [opts]
-  (filter
-   (complement (partial re-find #"resources"))
-   (concat (:paths opts) (get-in opts [:aliases :test :extra-paths]))))
-
 (defn check
-  [opts]
-  (let [dirs       (find-dirs opts)
-        namespaces (find-namespaces dirs)]
-    (when (some false? (mapv check-ns namespaces))
-      (System/exit 1))
+  [{:keys [paths] :as opts}]
+  (let [namespaces (find-namespaces paths)
+        errored-namespaces (into [] (remove nil?) (map check-ns namespaces))]
+    (when (seq errored-namespaces)
+      (binding [*out* *err*]
+        (println "the following namespaces failed to load:" errored-namespaces)
+        (System/exit 1)))
     (shutdown-agents))
   opts)
