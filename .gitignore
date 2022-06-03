@@ -27,3 +27,5 @@
 /target
 **/resources/git-version
 .clj-kondo/.cache
+pom.xml
+pom.properties

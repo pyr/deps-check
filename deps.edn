@@ -1,4 +1,9 @@
 {:paths       ["src"]
  :deps        {org.clojure/clojure    {:mvn/version "1.11.1"}
                timofreiberg/bultitude {:mvn/version "0.3.1"}}
+ :aliases
+ {:build {:extra-deps {slipset/deps-deploy {:mvn/version "RELEASE"}
+                       io.github.clojure/tools.build {:git/tag "v0.8.2" :git/sha "ba1a2bf"}}
+          :paths ["src" "build"]
+          :ns-default build}}
  :tools/usage {:ns-default spootnik.deps-check}}
